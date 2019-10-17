@@ -1,4 +1,4 @@
-# [twoodhouse.net](http://www.twoodhouse.net.com/)
+# [twoodhouse.net](http://www.twoodhouse.net/)
 created by [Trent Woodhouse](http://github.com/TrentWoodhouse/).
 
 ## Getting Started

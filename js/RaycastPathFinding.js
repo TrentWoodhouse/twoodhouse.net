@@ -43,11 +43,11 @@ let vector = function (x, y) {
 };
 
 //A collection of shapes
-let pattern = function (id, pos) {
+let pattern = function (id, attr, pos) {
     return {
         'type': 'pattern',
         'id': id,
-        'attr': "",
+        'attr': attr,
         'shapes': [],
         'pos': pos,
         'add': function (shape) {
@@ -73,15 +73,16 @@ let pattern = function (id, pos) {
                 ret.add(shape.clone());
             }
             return ret;
-        }
+        },
+        'attrFunctions': attrFunctions()
     }
 };
 
-let rectangle = function (id, w, h, pos, color = '#000000') {
+let rectangle = function (id, attr, w, h, pos, color = '#000000') {
     return {
         'type': 'rectangle',
         'id': id,
-        'attr': "",
+        'attr': attr,
         'w': w,
         'h': h,
         'pos': pos,
@@ -92,11 +93,11 @@ let rectangle = function (id, w, h, pos, color = '#000000') {
     }
 };
 
-let circle = function (id, r, pos, color = '#000000') {
+let circle = function (id, attr, r, pos, color = '#000000') {
     return {
         'type': 'circle',
         'id': id,
-        'attr': "",
+        'attr': attr,
         'r': r,
         'pos': pos,
         'color': color,
@@ -106,11 +107,11 @@ let circle = function (id, r, pos, color = '#000000') {
     }
 };
 
-let poly = function (id, positions, color = '#000000') {
+let poly = function (id, attr, positions, color = '#000000') {
     return {
         'type': 'poly',
         'id': id,
-        'attr': "",
+        'attr': attr,
         'positions': positions,
         'color': color,
         'clone': function () {
@@ -123,11 +124,11 @@ let poly = function (id, positions, color = '#000000') {
     }
 };
 
-let line = function (id, pos1, pos2, thickness = 5, color = '#000000') {
+let line = function (id, attr, pos1, pos2, thickness = 5, color = '#000000') {
     return {
         'type': 'line',
         'id': id,
-        'attr': "",
+        'attr': attr,
         'pos1': pos1,
         'pos2': pos2,
         'thickness': thickness,
@@ -138,11 +139,11 @@ let line = function (id, pos1, pos2, thickness = 5, color = '#000000') {
     }
 };
 
-let text = function (id, pos, text, size, font, color = '#000000') {
+let text = function (id, attr, pos, text, size, font, color = '#000000') {
     return {
         'type': 'text',
         'id': id,
-        'attr': "",
+        'attr': attr,
         'pos': vector(pos.x, pos.y + size),
         'text': text,
         'size': size,
@@ -152,6 +153,34 @@ let text = function (id, pos, text, size, font, color = '#000000') {
             return text(this.id, this.pos.clone(), this.text, this.size, this.font, this.color);
         }
     }
+};
+
+let attrFunctions = function () { //TODO Fix this, probably should make into prototypes
+    return {
+        'hasAttr': function (attr) {
+            return new RegExp('\\b' + attr.trim() + '\\b', 'i').test(this.attr)
+        },
+        'addAttr': function (attr) {
+            if (this.attr) {
+                if (!this.hasAttr(attr)) {
+                    this.attr += ' ' + attr.trim();
+                    return true;
+                }
+                return false;
+            }
+            else {
+                this.attr = attr.trim();
+            }
+
+        },
+        'removeAttr': function (attr) {
+            if (this.hasAttr(attr)) {
+                this.attr = this.attr.replace(new RegExp('\\s*\\b' + attr.trim() + '\\b', 'i'));
+                return true;
+            }
+            return false;
+        },
+    };
 };
 
 //------------------------------------------------View---------------------------------------------------------------//
@@ -267,184 +296,184 @@ let coord = function (x, y) {
 };
 
 let grid = function () {
-    let ret = pattern( "grid", vector(0,0));
+    let ret = pattern("grid", null, vector(0, 0));
     for (let i = 0; i <= 32; i++) {
-        ret.add(line(null, coord(i, 0), coord(i, 18), 6, '#eee'));
+        ret.add(line(null, null, coord(i, 0), coord(i, 18), 6, '#eee'));
     }
     for (let j = 0; j <= 18; j++) {
-        ret.add(line(null, coord(0, j), coord(32, j), 6, '#eee'));
+        ret.add(line(null, null, coord(0, j), coord(32, j), 6, '#eee'));
     }
     return ret;
 };
 
 let barrier = function (id, pos1, pos2, color = "#000") {
-    let ret = pattern(id, vector(0,0));
+    let ret = pattern(id, null, vector(0, 0));
     pos1.addVector(vector(25, 25));
     pos2.addVector(vector(25, 25));
-    ret.add(circle("p1", 3, pos1, color));
-    ret.add(circle("p2", 3, pos2, color));
-    ret.add(line("line", pos1, pos2, 6, color));
+    ret.add(circle("p1", null, 3, pos1, color));
+    ret.add(circle("p2", null, 3, pos2, color));
+    ret.add(line("line", null, pos1, pos2, 6, color));
     return ret;
 };
 
-let roundedRec = function (id, w, h, r, pos, color) {
-    let ret = pattern(id, pos);
+let roundedRec = function (id, attr, w, h, r, pos, color) {
+    let ret = pattern(id, attr, pos);
     if (r > w / 2) r = w / 2;
     if (r > h / 2) r = h / 2;
     let p1 = vector(r, r);
     let p2 = vector(w - r, r);
     let p3 = vector(w - r, h - r);
     let p4 = vector(r, h - r);
-    ret.add(circle(null, r, p1, color));
-    ret.add(circle(null, r, p2, color));
-    ret.add(circle(null, r, p3, color));
-    ret.add(circle(null, r, p4, color));
-    ret.add(rectangle(null, w - (2 * r), h, vector(p1.x, p1.y - r), color));
-    ret.add(rectangle(null, w, h - (2 * r), vector(p1.x - r, p1.y), color));
+    ret.add(circle(null, null, r, p1, color));
+    ret.add(circle(null, null, r, p2, color));
+    ret.add(circle(null, null, r, p3, color));
+    ret.add(circle(null, null, r, p4, color));
+    ret.add(rectangle(null, null, w - (2 * r), h, vector(p1.x, p1.y - r), color));
+    ret.add(rectangle(null, null, w, h - (2 * r), vector(p1.x - r, p1.y), color));
     return ret;
 };
 
 let target = function (pos) {
-    let ret = pattern("target", pos);
-    ret.add(circle(null, 20, vector(25, 25), '#c00'));
-    ret.add(circle(null, 15, vector(25, 25), '#fff'));
-    ret.add(line(null, vector(25, 0), vector(25, 50), 5, '#c00'));
-    ret.add(line(null, vector(0, 25), vector(50, 25), 5, '#c00'));
+    let ret = pattern("target", null, pos);
+    ret.add(circle(null, null, 20, vector(25, 25), '#c00'));
+    ret.add(circle(null, null, 15, vector(25, 25), '#fff'));
+    ret.add(line(null, null, vector(25, 0), vector(25, 50), 5, '#c00'));
+    ret.add(line(null, null, vector(0, 25), vector(50, 25), 5, '#c00'));
     return ret;
 };
 
 let player = function (pos) {
-    let ret = pattern("player", pos);
-    ret.add(circle(null, 20, vector(25, 25), '#9e5b00'));
-    ret.add(circle(null, 15, vector(25, 25), '#f98a00'));
+    let ret = pattern("player", null, pos);
+    ret.add(circle(null, null, 20, vector(25, 25), '#9e5b00'));
+    ret.add(circle(null, null, 15, vector(25, 25), '#f98a00'));
     return ret;
 };
 
 let btn_ = function (pos) {
-    let ret = pattern("btn_", pos);
-    ret.add(roundedRec("background", 50, 50, 6, vector(0,0), null));
-    ret.add(circle(null, 15, vector(25,25)));
+    let ret = pattern("btn_", null, pos);
+    ret.add(roundedRec("background", null, 50, 50, 6, vector(0, 0), null));
+    ret.add(circle(null, null, 15, vector(25, 25)));
     return ret;
 };
 
 let btn_path = function (pos) {
-    let ret = pattern("btn_path", pos);
-    ret.add(roundedRec("background", 50, 50, 6, vector(0,0), null));
-    ret.add(line(null, vector(10, 40), vector(40,10), 3, '#000'));
-    ret.add(circle(null, 6, vector(10,40), '#f98a00'));
-    ret.add(circle(null, 6, vector(40,10), '#c00'));
+    let ret = pattern("btn_path", null, pos);
+    ret.add(roundedRec("background", null, 50, 50, 6, vector(0, 0), null));
+    ret.add(line(null, null, vector(10, 40), vector(40, 10), 3, '#000'));
+    ret.add(circle(null, null, 6, vector(10, 40), '#f98a00'));
+    ret.add(circle(null, null, 6, vector(40, 10), '#c00'));
     return ret;
 };
 
 let btn_grid = function (pos) {
-    let ret = pattern("btn_grid", pos);
-    ret.add(roundedRec("background", 50, 50, 6, vector(0,0), null));
-    ret.add(line(null, vector(10,10), vector(40,10), 4, "#000"));
-    ret.add(line(null, vector(40,10), vector(40,40), 4, "#000"));
-    ret.add(line(null, vector(40,40), vector(10,40), 4, "#000"));
-    ret.add(line(null, vector(10,40), vector(10,10), 4, "#000"));
-    ret.add(line(null, vector(25,10), vector(25,40), 4, "#000"));
-    ret.add(line(null, vector(10,25), vector(40,25), 4, "#000"));
+    let ret = pattern("btn_grid", null, pos);
+    ret.add(roundedRec("background", null, 50, 50, 6, vector(0, 0), null));
+    ret.add(line(null, null, vector(10, 10), vector(40, 10), 4, "#000"));
+    ret.add(line(null, null, vector(40, 10), vector(40, 40), 4, "#000"));
+    ret.add(line(null, null, vector(40, 40), vector(10, 40), 4, "#000"));
+    ret.add(line(null, null, vector(10, 40), vector(10, 10), 4, "#000"));
+    ret.add(line(null, null, vector(25, 10), vector(25, 40), 4, "#000"));
+    ret.add(line(null, null, vector(10, 25), vector(40, 25), 4, "#000"));
     return ret;
 };
 
 let btn_stop = function (pos) {
-    let ret = pattern("btn_stop", pos);
-    ret.add(roundedRec("background", 50, 50, 6, vector(0,0), null));
-    ret.add(rectangle("stop", 30, 30, vector(10,10), '#d00'));
+    let ret = pattern("btn_stop", null, pos);
+    ret.add(roundedRec("background", null, 50, 50, 6, vector(0, 0), null));
+    ret.add(rectangle("stop", null, 30, 30, vector(10, 10), '#d00'));
     return ret;
 };
 
 let btn_animate = function (pos) {
-    let ret = pattern("btn_animate", pos);
-    ret.add(roundedRec("background", 50, 50, 6, vector(0,0), null));
-    ret.add(poly("play", [vector(10,10), vector(10,40), vector(40,25)], '#0d0'));
+    let ret = pattern("btn_animate", null, pos);
+    ret.add(roundedRec("background", null, 50, 50, 6, vector(0, 0), null));
+    ret.add(poly("play", null, [vector(10, 10), vector(10, 40), vector(40, 25)], '#0d0'));
     return ret;
 };
 
 let btn_speed = function (pos) {
-    let ret = pattern("btn_speed", pos);
-    ret.add(roundedRec("background", 50, 50, 6, vector(0,0), null));
-    ret.add(text("x1", vector(10,5), "x1", 30, "Consolas", "#000"));
-    ret.add(text("x2", vector(10,5), "x2", 30, "Consolas", null));
-    ret.add(text("x3", vector(10,5), "x3", 30, "Consolas", null));
+    let ret = pattern("btn_speed", null, pos);
+    ret.add(roundedRec("background", null, 50, 50, 6, vector(0, 0), null));
+    ret.add(text("x1", null, vector(10, 5), "x1", 30, "Consolas", "#000"));
+    ret.add(text("x2", null, vector(10, 5), "x2", 30, "Consolas", null));
+    ret.add(text("x3", null, vector(10, 5), "x3", 30, "Consolas", null));
     return ret;
 };
 
 let btn_draw = function (pos) {
-    let ret = pattern("btn_draw", pos);
-    ret.add(roundedRec("background", 50, 50, 6, vector(0,0), null));
-    ret.add(circle(null, 15, vector(25,25)));
+    let ret = pattern("btn_draw", null, pos);
+    ret.add(roundedRec("background", null, 50, 50, 6, vector(0, 0), null));
+    ret.add(circle(null, null, 15, vector(25, 25)));
     return ret;
 };
 
 let btn_erase = function (pos) {
-    let ret = pattern("btn_erase", pos);
-    ret.add(roundedRec("background", 50, 50, 6, vector(0,0), null));
-    ret.add(circle(null, 15, vector(25,25)));
+    let ret = pattern("btn_erase", null, pos);
+    ret.add(roundedRec("background", null, 50, 50, 6, vector(0, 0), null));
+    ret.add(circle(null, null, 15, vector(25, 25)));
     return ret;
 };
 
 let btn_clear = function (pos) {
-    let ret = pattern("btn_clear", pos);
-    ret.add(roundedRec("background", 50, 50, 6, vector(0,0), null));
-    ret.add(circle(null, 15, vector(25,25)));
+    let ret = pattern("btn_clear", null, pos);
+    ret.add(roundedRec("background", null, 50, 50, 6, vector(0, 0), null));
+    ret.add(circle(null, null, 15, vector(25, 25)));
     return ret;
 };
 
 let btn_raycast_lines = function (pos) {
-    let ret = pattern("btn_raycast_lines", pos);
-    ret.add(roundedRec("background", 50, 50, 6, vector(0,0), null));
-    ret.add(line(null, vector(25, 10), vector(25, 40), 3));
-    ret.add(line(null, vector(10, 25), vector(40, 25), 3));
-    ret.add(line(null, vector(12, 12), vector(38, 38), 3));
-    ret.add(line(null, vector(12, 38), vector(38, 12), 3));
+    let ret = pattern("btn_raycast_lines", null, pos);
+    ret.add(roundedRec("background", null, 50, 50, 6, vector(0, 0), null));
+    ret.add(line(null, null, vector(25, 10), vector(25, 40), 3));
+    ret.add(line(null, null, vector(10, 25), vector(40, 25), 3));
+    ret.add(line(null, null, vector(12, 12), vector(38, 38), 3));
+    ret.add(line(null, null, vector(12, 38), vector(38, 12), 3));
     return ret;
 };
 
 let btn_raycast_room = function (pos) {
-    let ret = pattern("btn_raycast_room", pos);
-    ret.add(roundedRec("background", 50, 50, 6, vector(0,0), null));
-    ret.add(circle(null, 15, vector(25,25)));
+    let ret = pattern("btn_raycast_room", null, pos);
+    ret.add(roundedRec("background", null, 50, 50, 6, vector(0, 0), null));
+    ret.add(circle(null, null, 15, vector(25, 25)));
     return ret;
 };
 
 let item_divider = function (pos) {
-    return line("border", vector(pos.x + 25,pos.y - 10), vector(pos.x + 25,pos.y + 60), 3, "#bbb");
+    return line("border", null, vector(pos.x + 25, pos.y - 10), vector(pos.x + 25, pos.y + 60), 3, "#bbb");
 };
 
 // Basic UI
 e.add(grid());
-e.add(line("border", vector(0,0), vector(1600,0), 50, "#ccc"));
-e.add(line("border", vector(1600,0), vector(1600,800), 50, "#ccc"));
-e.add(line("border", vector(1600,800), vector(0,800), 50, "#ccc"));
-e.add(line("border", vector(0,800), vector(0,0), 50, "#ccc"));
+e.add(line("border", null, vector(0, 0), vector(1600, 0), 50, "#ccc"));
+e.add(line("border", null, vector(1600, 0), vector(1600, 800), 50, "#ccc"));
+e.add(line("border", null, vector(1600, 800), vector(0, 800), 50, "#ccc"));
+e.add(line("border", null, vector(0, 800), vector(0, 0), 50, "#ccc"));
 
 
 //Menu
-let menu = pattern("menu", vector(0, 800));
-menu.add(rectangle("menubar", 1600, 100, vector(0, 0), "#efefef"));
-menu.add(line("border", vector(0,0), vector(1600,0), 5, "#bbb"));
-menu.add(rectangle("border", 590, 80, vector(1000, 10), "#ccc"));
-menu.add(rectangle("textbox", 584, 74, vector(1003, 13), "#fff"));
-menu.add(btn_path(vector(25,25)));
-menu.add(btn_grid(vector(75,25)));
+let menu = pattern("menu", null, vector(0, 800));
+menu.add(rectangle("menubar", null, 1600, 100, vector(0, 0), "#efefef"));
+menu.add(line("border", null, vector(0, 0), vector(1600, 0), 5, "#bbb"));
+menu.add(rectangle("border", null, 590, 80, vector(1000, 10), "#ccc"));
+menu.add(rectangle("textbox", null, 584, 74, vector(1003, 13), "#fff"));
+menu.add(btn_path(vector(25, 25)));
+menu.add(btn_grid(vector(75, 25)));
 menu.add(item_divider(vector(125, 25)));
-menu.add(btn_stop(vector(175,25)));
-menu.add(btn_animate(vector(225,25)));
-menu.add(btn_speed(vector(275,25)));
+menu.add(btn_stop(vector(175, 25)));
+menu.add(btn_animate(vector(225, 25)));
+menu.add(btn_speed(vector(275, 25)));
 menu.add(item_divider(vector(325, 25)));
-menu.add(btn_draw(vector(375,25)));
-menu.add(btn_erase(vector(425,25)));
-menu.add(btn_clear(vector(475,25)));
+menu.add(btn_draw(vector(375, 25)));
+menu.add(btn_erase(vector(425, 25)));
+menu.add(btn_clear(vector(475, 25)));
 menu.add(item_divider(vector(525, 25)));
-menu.add(btn_raycast_lines(vector(575,25)));
-menu.add(btn_raycast_room(vector(625,25)));
+menu.add(btn_raycast_lines(vector(575, 25)));
+menu.add(btn_raycast_room(vector(625, 25)));
 e.add(menu);
 
 // Map
-let map = pattern("map", vector(0, 0));
-let barriers = pattern("barriers", vector(0,0));
+let map = pattern("map", null, vector(0, 0));
+let barriers = pattern("barriers", null, vector(0, 0));
 barriers.add(barrier("immbarrier", coord(0, 0), coord(31, 0)));
 barriers.add(barrier("immbarrier", coord(0, 15), coord(31, 15)));
 barriers.add(barrier("immbarrier", coord(0, 0), coord(0, 15)));
@@ -462,10 +491,6 @@ map.add(player(coord(30, 14)));
 e.add(map);
 render(e);
 console.log(e);
-
-
-
-
 
 
 // Mouse functions
@@ -548,8 +573,8 @@ $canvas.on('mousemove', function (event) {
                 if (!pointInRect(mousePos, barrierObject.get("p2").pos.x + 25, barrierObject.get("p2").pos.y + 25, 50, 50)) {
                     barrierObject.get("p2").pos = snappedToGrid(mousePos);
                     barrierObject.get("line").pos2 = snappedToGrid(mousePos);
-                    barrierObject.get("p2").pos.addVector(vector(25,25));
-                    barrierObject.get("line").pos2.addVector(vector(25,25));
+                    barrierObject.get("p2").pos.addVector(vector(25, 25));
+                    barrierObject.get("line").pos2.addVector(vector(25, 25));
                     render(e);
                 }
                 break;
@@ -570,8 +595,7 @@ $canvas.on('mousemove', function (event) {
 });
 
 $canvas.on('mouseup', function (event) {
-    if (targetedObject === "grid")
-    {
+    if (targetedObject === "grid") {
         barrierObjects.get("halfbarrier").id = "barrier" + barrierObjects.shapes.length;
         barrierObjects.remove("halfbarrier");
     }
@@ -579,8 +603,7 @@ $canvas.on('mouseup', function (event) {
     mousedown = false;
 });
 
-
-
+console.log(e.get('map').attrFunctions.addAttr('big sexy map'), e);
 
 
 // Union Jack

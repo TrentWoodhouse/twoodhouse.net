@@ -1,90 +1,3 @@
-class Canvas {
-	constructor(canvasElement, width = 1600, height = 900) {
-		canvasElement.width = canvasElement.parentElement.offsetWidth;
-		canvasElement.height = canvasElement.width * height / width;
-
-		this.canvas = canvasElement;
-		this.ctx = canvasElement.getthis.ctx('2d');
-		this.width = width;
-		this.height = height;
-		this.scale = canvasElement.width / width;
-		this.objects = new Collection('root', null, null);
-	}
-	
-	resize() {
-		this.canvas.width = this.canvas.parentElement.offsetWidth;
-		this.canvas.height = this.canvas.width * this.height / this.width;
-		this.scale = this.canvas.width / this.width;
-		render(); //TODO Remove
-	}
-	
-	render() {
-		this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-		for(let object of this.objects) {
-			draw(object, new Point());
-		}
-	}
-	
-	draw(object, offset) {
-		//Sets default x and y positions of where to start drawing
-		let x = (offset.x + object.pos.x) * this.scale;
-		let y = (offset.y + object.pos.y) * this.scale;
-
-		switch (object.type) {
-			case 'collection':
-				for(let subObject of object.objects) {
-					draw(subObject, offset.clone().add(object.pos));
-				}
-				break;
-			case 'rectangle':
-				if (object.color) {
-					this.ctx.fillStyle = object.color;
-					this.ctx.fillRect(x, y, object.w * this.scale, object.h * this.scale);
-				}
-				break;
-			case 'circle':
-				if (object.color) {
-					this.ctx.beginPath();
-					this.ctx.arc(x, y, object.r * this.scale, 0, 2 * Math.PI, false);
-					this.ctx.fillStyle = object.color;
-					this.ctx.fill();
-				}
-				break;
-			case 'poly':
-				if (object.color) {
-					this.ctx.beginPath();
-					this.ctx.fillStyle = object.color;
-					this.ctx.moveTo(x, y);
-					for (let pos of object.positions) {
-						this.ctx.lineTo((pos.x + offset.x) * this.scale, (pos.y + offset.y) * this.scale);
-					}
-					this.ctx.closePath();
-					this.ctx.fill();
-				}
-				break;
-			case 'line':
-				if (object.color) {
-					this.ctx.beginPath();
-					this.ctx.strokeStyle = object.color;
-					this.ctx.lineWidth = object.thickness * this.scale;
-					this.ctx.moveTo(x, y);
-					this.ctx.lineTo((object.pos2.x + offset.x) * this.scale, (object.pos2.y + offset.y) * this.scale);
-					this.ctx.stroke();
-				}
-				break;
-			case 'text':
-				if (object.color) {
-					this.ctx.fillStyle = object.color;
-					this.ctx.font = object.size * this.scale + "px " + object.font;
-					this.ctx.fillText(object.text, x, y);
-				}
-				break;
-			default:
-				console.log("ERROR: No object of object type \"" + object.type + "\" exists");
-		}
-	}
-}
-
 class Object {
 	constructor(id, attr, pos) {
 		this.id = id;
@@ -119,16 +32,16 @@ class Object {
 }
 
 class Collection extends Object{
-	constructor(id, attr, pos) {
+	constructor(id, attr, pos = new Point()) {
 		super(id, attr, pos);
 		this.type = 'collection';
 		this.objects = [];
 	}
-	
+
 	add(object) {
 		this.objects.push(object);
 	}
-	
+
 	remove(id) {
 		for(let [i, object] of this.objects.entries()) {
 			if (object.id === id) {
@@ -136,7 +49,7 @@ class Collection extends Object{
 			}
 		}
 	}
-	
+
 	get(id) {
 		for (const object of this.objects) {
 			if (object.id === id) {
@@ -144,13 +57,99 @@ class Collection extends Object{
 			}
 		}
 	}
-	
+
 	clone() {
 		let ret = new Collection(this.id, this.attr, this.pos.clone());
 		for (const object of this.objects) {
 			ret.add(object.clone());
 		}
 		return ret;
+	}
+}
+
+class Canvas extends Collection{
+	constructor(canvasElement, width = 1600, height = 900) {
+		super('root', null, null);
+		this.canvas = canvasElement;
+		this.ctx = canvasElement.getContext('2d');
+		this.width = width;
+		this.height = height;
+		this.scale = canvasElement.width / width;
+
+		this.resize();
+	}
+
+	resize() {
+		this.canvas.width = this.canvas.parentElement.offsetWidth;
+		this.canvas.height = this.canvas.width * this.height / this.width;
+		this.scale = this.canvas.width / this.width;
+		this.render();
+	}
+
+	render() {
+		this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+		for(let object of this.objects) {
+			this.draw(object);
+		}
+	}
+	
+	draw(object, offset = new Point()) {
+		//Sets default x and y positions of where to start drawing
+		let x = (offset.x + object.pos.x) * this.scale;
+		let y = (offset.y + object.pos.y) * this.scale;
+
+		switch (object.type) {
+			case 'collection':
+				for(let subObject of object.objects) {
+					this.draw(subObject, offset.clone().add(object.pos));
+				}
+				break;
+			case 'rectangle':
+				if (object.color) {
+					this.ctx.fillStyle = object.color;
+					this.ctx.fillRect(x, y, object.w * this.scale, object.h * this.scale);
+				}
+				break;
+			case 'circle':
+				if (object.color) {
+					this.ctx.beginPath();
+					this.ctx.arc(x, y, object.r * this.scale, 0, 2 * Math.PI, false);
+					this.ctx.fillStyle = object.color;
+					this.ctx.fill();
+				}
+				break;
+			case 'polygon':
+				if (object.color) {
+					this.ctx.beginPath();
+					this.ctx.fillStyle = object.color;
+					this.ctx.moveTo(x, y);
+					for (let pos of object.positions) {
+						this.ctx.lineTo((pos.x + offset.x) * this.scale, (pos.y + offset.y) * this.scale);
+					}
+					this.ctx.closePath();
+					this.ctx.fill();
+				}
+				break;
+			case 'line':
+				if (object.color) {
+					this.ctx.beginPath();
+					this.ctx.strokeStyle = object.color;
+					this.ctx.lineWidth = object.thickness * this.scale;
+					this.ctx.moveTo(x, y);
+					this.ctx.lineTo((object.pos2.x + offset.x) * this.scale, (object.pos2.y + offset.y) * this.scale);
+					this.ctx.stroke();
+				}
+				break;
+			case 'text':
+				if (object.color) {
+					this.ctx.fillStyle = object.color;
+					this.ctx.font = object.size * this.scale + "px " + object.font;
+					this.ctx.fillText(object.text, x, y);
+				}
+				break;
+			default:
+				console.log("ERROR: No object of object type \"" + object.type + "\" exists");
+		}
 	}
 }
 
@@ -201,6 +200,7 @@ class Circle extends Object {
 class Polygon extends Object {
 	constructor(id, attr, positions, color = '#000000') {
 		super(id, attr, positions[0]);
+		this.type = 'polygon';
 		this.positions = positions;
 		this.color = color;
 	}
@@ -217,6 +217,7 @@ class Polygon extends Object {
 class Line extends Object {
 	constructor(id, attr, pos1, pos2, thickness = 5, color = '#000000') {
 		super(id, attr, pos1);
+		this.type = 'line';
 		this.pos2 = pos2;
 		this.thickness = thickness;
 		this.color = color;
@@ -227,9 +228,10 @@ class Line extends Object {
 	}
 }
 
-class Text extends Object {
+class TextObj extends Object {
 	constructor(id, attr, pos, text, size, font = 'Calibri', color = '#000000') {
 		super(id, attr, pos);
+		this.type = 'text';
 		this.text = text;
 		this.size = size;
 		this.font = font;
@@ -237,9 +239,7 @@ class Text extends Object {
 	}
 
 	clone() {
-		return new Text(this.id, this.attr, this.pos.clone(), this.text, this.size, this.font, this.color);
+		return new TextObj(this.id, this.attr, this.pos.clone(), this.text, this.size, this.font, this.color);
 	}
 }
-
-
 

@@ -2,9 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="63c6fb3f-05e5-4c48-8d52-fe72b1cc8868" name="Default Changelist" comment="Transferred website to new repo">
-      <change afterPath="$PROJECT_DIR$/js/Canvas_old.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/js/Canvas.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/Canvas.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/js/RaycastPathFinding.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/RaycastPathFinding.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/projects/raycast-pathfinding.html" beforeDir="false" afterPath="$PROJECT_DIR$/projects/raycast-pathfinding.html" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/.tmp/" />
@@ -17,21 +17,24 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="FileEditorManager">
-    <leaf>
+    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/js/Canvas_old.js">
+        <entry file="file://$PROJECT_DIR$/js/Canvas.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="136">
-              <caret line="204" column="72" lean-forward="true" selection-start-line="204" selection-start-column="20" selection-end-line="204" selection-end-column="72" />
+            <state relative-caret-position="489">
+              <caret line="240" column="13" lean-forward="true" selection-start-line="240" selection-start-column="13" selection-end-line="240" selection-end-column="13" />
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/js/Canvas.js">
+        <entry file="file://$PROJECT_DIR$/js/RaycastPathFinding.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="506">
-              <caret line="234" column="25" selection-start-line="234" selection-start-column="25" selection-end-line="234" selection-end-column="25" />
+            <state relative-caret-position="445">
+              <caret line="124" column="31" lean-forward="true" selection-start-line="124" selection-start-column="31" selection-end-line="124" selection-end-column="31" />
+              <folding>
+                <element signature="n#!!doc" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -39,20 +42,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/projects/raycast-pathfinding.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="455">
-              <caret line="117" column="42" lean-forward="true" selection-start-line="117" selection-start-column="42" selection-end-line="117" selection-end-column="42" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/js/RaycastPathFinding.js">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="748">
-              <caret line="590" column="17" selection-start-line="590" selection-start-column="17" selection-end-line="590" selection-end-column="17" />
-              <folding>
-                <element signature="n#!!doc" expanded="true" />
-              </folding>
+            <state relative-caret-position="340">
+              <caret line="68" column="34" lean-forward="true" selection-start-line="68" selection-start-column="34" selection-end-line="68" selection-end-column="34" />
             </state>
           </provider>
         </entry>
@@ -73,12 +64,25 @@
       <find>shape</find>
       <find>pair</find>
       <find>context</find>
+      <find>pattern</find>
+      <find>vector</find>
+      <find>rectangle</find>
+      <find>poly</find>
+      <find>e.</find>
+      <find>console</find>
+      <find>&quot;</find>
     </findStrings>
     <replaceStrings>
       <replace>Canvas</replace>
       <replace>object</replace>
       <replace>point</replace>
       <replace>this.ctx</replace>
+      <replace>new Rectangle</replace>
+      <replace>new Line</replace>
+      <replace>new Text</replace>
+      <replace>new Polygon</replace>
+      <replace>c.</replace>
+      <replace>'</replace>
     </replaceStrings>
   </component>
   <component name="Git.Settings">
@@ -95,6 +99,7 @@
         <option value="$PROJECT_DIR$/js/Canvas_old.js" />
         <option value="$PROJECT_DIR$/projects/raycast-pathfinding.html" />
         <option value="$PROJECT_DIR$/js/Canvas.js" />
+        <option value="$PROJECT_DIR$/js/RaycastPathFinding.js" />
       </list>
     </option>
   </component>
@@ -110,7 +115,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -132,6 +136,7 @@
           <select />
         </subPane>
       </pane>
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -173,17 +178,18 @@
       <workItem from="1571085290883" duration="151000" />
       <workItem from="1571102508848" duration="1334000" />
       <workItem from="1571262077365" duration="4007000" />
+      <workItem from="1576742584243" duration="7553000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="11145000" />
+    <option name="totallyTimeSpent" value="24381000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-6" y="-6" width="1549" height="837" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.24966975" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.24966975" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
@@ -262,34 +268,34 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/js/RaycastPathFinding.js">
+    <entry file="file://$PROJECT_DIR$/js/Canvas_old.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="748">
-          <caret line="590" column="17" selection-start-line="590" selection-start-column="17" selection-end-line="590" selection-end-column="17" />
-          <folding>
-            <element signature="n#!!doc" expanded="true" />
-          </folding>
+        <state relative-caret-position="-255">
+          <caret line="204" column="72" lean-forward="true" selection-start-line="204" selection-start-column="20" selection-end-line="204" selection-end-column="72" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/projects/raycast-pathfinding.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="455">
-          <caret line="117" column="42" lean-forward="true" selection-start-line="117" selection-start-column="42" selection-end-line="117" selection-end-column="42" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/js/Canvas_old.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="136">
-          <caret line="204" column="72" lean-forward="true" selection-start-line="204" selection-start-column="20" selection-end-line="204" selection-end-column="72" />
+        <state relative-caret-position="340">
+          <caret line="68" column="34" lean-forward="true" selection-start-line="68" selection-start-column="34" selection-end-line="68" selection-end-column="34" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/js/Canvas.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="506">
-          <caret line="234" column="25" selection-start-line="234" selection-start-column="25" selection-end-line="234" selection-end-column="25" />
+        <state relative-caret-position="489">
+          <caret line="240" column="13" lean-forward="true" selection-start-line="240" selection-start-column="13" selection-end-line="240" selection-end-column="13" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/js/RaycastPathFinding.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="445">
+          <caret line="124" column="31" lean-forward="true" selection-start-line="124" selection-start-column="31" selection-end-line="124" selection-end-column="31" />
+          <folding>
+            <element signature="n#!!doc" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>

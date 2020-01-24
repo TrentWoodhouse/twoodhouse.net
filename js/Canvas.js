@@ -19,16 +19,32 @@ class Object {
 		}
 		else {
 			this.attr = attr.trim();
+			return true;
 		}
+	}
+
+	setAttr(attr) {
+		this.attr = attr.trim();
 	}
 
 	removeAttr(attr) {
 		if (this.hasAttr(attr)) {
-			this.attr = this.attr.replace(new RegExp('\\s*\\b' + attr.trim() + '\\b', 'i'));
+			this.attr = this.attr.replace(new RegExp('\\s*\\b' + attr.trim() + '\\b', 'i'), '');
 			return true;
 		}
 		return false;
 	}
+
+	colorize(color) {
+		if ('objects' in this) {
+			for (let subObj of this.objects) {
+				subObj.colorize(color);
+			}
+		}
+		if ('color' in this) {
+			this.color = color;
+		}
+	};
 }
 
 class Collection extends Object{
@@ -56,6 +72,7 @@ class Collection extends Object{
 				return object;
 			}
 		}
+		return null;
 	}
 
 	clone() {

@@ -88,7 +88,7 @@ let btn_path = function (pos) {
 };
 
 let btn_grid = function (pos) {
-    let ret = new Collection("btn_grid", null, pos);
+    let ret = new Collection("btn_grid", 'active', pos);
     ret.add(roundedRectangle("background", null, new Point(0, 0), 50, 50, 6, null));
     ret.add(new Line(null, null, new Point(10, 10), new Point(40, 10), 4, "#000"));
     ret.add(new Line(null, null, new Point(40, 10), new Point(40, 40), 4, "#000"));
@@ -96,6 +96,7 @@ let btn_grid = function (pos) {
     ret.add(new Line(null, null, new Point(10, 40), new Point(10, 10), 4, "#000"));
     ret.add(new Line(null, null, new Point(25, 10), new Point(25, 40), 4, "#000"));
     ret.add(new Line(null, null, new Point(10, 25), new Point(40, 25), 4, "#000"));
+    ret.get('background').colorize('#c4c4c4');
     return ret;
 };
 
@@ -114,25 +115,26 @@ let btn_animate = function (pos) {
 };
 
 let btn_speed = function (pos) {
-    let ret = new Collection("btn_speed", null, pos);
+    let ret = new Collection("btn_speed", '1', pos);
     ret.add(roundedRectangle("background", null, new Point(0, 0), 50, 50, 6, null));
-    ret.add(new TextObj('x1', null, new Point(10, 35), 'x1', 30, 'Consolas', '#000'));
-    ret.add(new TextObj('x2', null, new Point(10, 35), 'x2', 30, 'Consolas', null));
-    ret.add(new TextObj('x3', null, new Point(10, 35), 'x3', 30, 'Consolas', null));
+    ret.add(new TextObj('1', null, new Point(10, 35), 'x1', 30, 'Consolas', '#000'));
+    ret.add(new TextObj('2', null, new Point(10, 35), 'x2', 30, 'Consolas', null));
+    ret.add(new TextObj('3', null, new Point(10, 35), 'x3', 30, 'Consolas', null));
     return ret;
 };
 
 let btn_draw = function (pos) {
-    let ret = new Collection("btn_draw", null, pos);
+    let ret = new Collection("btn_draw", 'active', pos);
     ret.add(roundedRectangle("background", null, new Point(0, 0), 50, 50, 6, null));
     ret.add(new Line(null, null, new Point(15, 35), new Point(34, 16), 10));
     ret.add(new Line(null, null, new Point(35, 15), new Point(40, 10), 10));
     ret.add(new Polygon(null, null, [new Point(7, 43), new Point(10.5, 32.5), new Point(17.5, 39.5)]));
+    ret.get('background').colorize('#c4c4c4');
     return ret;
 };
 
 let btn_erase = function (pos) {
-    let ret = new Collection("btn_draw", null, pos);
+    let ret = new Collection("btn_erase", null, pos);
     ret.add(roundedRectangle("background", null, new Point(0, 0), 50, 50, 6, null));
     ret.add(roundedRectangle(null, null, new Point(10, 5), 30, 40, 5));
     ret.add(new Rectangle(null, null, new Point(15, 10), 20, 10, '#fff'));
@@ -163,7 +165,6 @@ let btn_raycast_room = function (pos) {
     ret.add(new Line(null, null, new Point(10, 25), new Point(40, 25), 3, '#999'));
     ret.add(new Line(null, null, new Point(12, 12), new Point(38, 38), 3, '#999'));
     ret.add(new Line(null, null, new Point(12, 38), new Point(38, 12), 3, '#999'));
-
     ret.add(new Line(null, null, new Point(25, 10), new Point(12, 12), 3));
     ret.add(new Line(null, null, new Point(12, 12), new Point(10, 25), 3));
     ret.add(new Line(null, null, new Point(10, 25), new Point(12, 38), 3));
@@ -210,6 +211,8 @@ c.add(menu);
 
 // Map
 let map = new Collection("map");
+map.add(new Collection("drawables"));
+
 let barriers = new Collection("barriers");
 barriers.add(barrier("immbarrier", coord(0, 0), coord(31, 0)));
 barriers.add(barrier("immbarrier", coord(0, 15), coord(31, 15)));
@@ -228,160 +231,6 @@ map.add(player(coord(30, 14)));
 c.add(map);
 c.render();
 console.log(c);
-
-
-// Mouse functions
-let getMousePos = function (event) {
-    let rect = c.canvas.getBoundingClientRect();
-    return new Point(Math.round((event.clientX - rect.left) / c.scale), Math.round((event.clientY - rect.top) / c.scale));
-};
-
-let snappedToGrid = function (pos) {
-    return new Point(Math.round((pos.x - 25) / 50) * 50, Math.round((pos.y - 25) / 50) * 50)
-};
-
-let pointInRect = function (pos, x, y, w, h) {
-    let valid = true;
-    if (!(x <= pos.x && pos.x <= x + w)) valid = false;
-    if (!(y <= pos.y && pos.y <= y + h)) valid = false;
-    return valid;
-};
-
-let mousedown = false;
-let targetedObject = null;
-let playerObject = c.get("map").get("player");
-let targetObject = c.get("map").get("target");
-let barrierObjects = c.get("map").get("barriers");
-let menuObject = c.get("menu");
-
-c.canvas.onmousedown = function (event) {
-    let mousePos = getMousePos(event);
-    mousedown = true;
-
-    if (pointInRect(mousePos, playerObject.pos.x, playerObject.pos.y, 50, 50) && !targetedObject) {
-        targetedObject = "player";
-    }
-    if (pointInRect(mousePos, targetObject.pos.x, targetObject.pos.y, 50, 50) && !targetedObject) {
-        targetedObject = "target";
-    }
-    if (pointInRect(mousePos, 0, 0, 1600, 780) && !targetedObject) {
-        targetedObject = "grid";
-        barrierObjects.add(barrier("halfbarrier", snappedToGrid(mousePos), snappedToGrid(mousePos)));
-        c.render();
-    }
-    if (pointInRect(mousePos, 0, 800, 1600, 100)) {
-        for (let object of menuObject.objects) {
-            if (/btn/.test(object.id)) {
-                if (pointInRect(mousePos, menuObject.pos.x + object.pos.x, menuObject.pos.y + object.pos.y, 50, 50)) {
-                    targetedObject = object.id;
-                    object.addAttr('mousedown');
-                    for (let subObject of object.get("background").objects) {
-                        subObject.color = "#bbb";
-                    }
-                    console.log(object);
-                    c.render();
-                }
-            }
-        }
-    }
-
-    console.log(targetedObject);
-};
-
-c.canvas.onmousemove = function (event) {
-    let mousePos = getMousePos(event);
-    if (mousedown) {
-        switch (targetedObject) {
-            case "player":
-                playerObject.pos = mousePos;
-                playerObject.pos.add(new Point(-25, -25));
-                c.render();
-                break;
-            case "target":
-                targetObject.pos = mousePos;
-                targetObject.pos.add(new Point(-25, -25));
-                c.render();
-                break;
-            case "grid":
-                let barrierObject = barrierObjects.get("halfbarrier");
-                if (!pointInRect(mousePos, barrierObject.get("p2").pos.x + 25, barrierObject.get("p2").pos.y + 25, 50, 50)) {
-                    barrierObject.get("p2").pos = snappedToGrid(mousePos);
-                    barrierObject.get("line").pos2 = snappedToGrid(mousePos);
-                    barrierObject.get("p2").pos.add(new Point(25, 25));
-                    barrierObject.get("line").pos2.add(new Point(25, 25));
-                    c.render();
-                }
-                break;
-        }
-    }
-    if (pointInRect(mousePos, 0, 800, 1600, 100)) {
-        for (let object of menuObject.objects) {
-            if (/btn/.test(object.id)) {
-                if (pointInRect(mousePos, menuObject.pos.x + object.pos.x, menuObject.pos.y + object.pos.y, 50, 50)) {
-                    if (!object.hasAttr('mousedown')) {
-                        for (let subObject of object.get("background").objects) {
-                            subObject.color = "#ccc";
-                        }
-                    }
-                }
-                else {
-                    for (let subObject of object.get("background").objects) {
-                        subObject.color = null;
-                    }
-                }
-                c.render();
-            }
-        }
-    }
-};
-
-c.canvas.onmouseup = function (event) {
-    let mousePos = getMousePos(event);
-    if (targetedObject === "grid") {
-        barrierObjects.get("halfbarrier").id = "barrier" + barrierObjects.objects.length;
-        barrierObjects.remove("halfbarrier");
-    }
-    // for (let object of menuObject.objects) {
-    //     if (/btn/.test(object.id)) {
-    //         if (pointInRect(mousePos, menuObject.pos.x + object.pos.x, menuObject.pos.y + object.pos.y, 50, 50)) {
-    //             if (object.hasAttr('mousedown')) {
-    //                 object.removeAttr('mousedown');
-    //                 object.addAttr('active');
-    //             }
-    //             object.addAttr('mousedown');
-    //             // for (let subObject of object.get("background").objects) {
-    //             //     subObject.color = "#bbb";
-    //             // }
-    //             console.log(object);
-    //             c.render();
-    //         }
-    //         else if (object.hasAttr('mousedown')) {
-    //
-    //         }
-    //     }
-    // }
-    targetedObject = null;
-    mousedown = false;
-};
-
-
-//Union Jack
-// let c = new Canvas(document.getElementById('canvas'));
-// c.add(new Rectangle(null, null, new Point(0,0), 1600, 900, "#0300a0"));
-// c.add(new Line(null, null, new Point(0,0), new Point(1600,900),200,"#fff"));
-// c.add(new Line(null, null, new Point(0,900), new Point(1600,0),200,"#fff"));
-// c.add(new Line(null, null, new Point(-32,32), new Point(800,500),66,"#c00"));
-// c.add(new Line(null, null, new Point(800,400), new Point(1600,-50),66,"#c00"));
-// c.add(new Line(null, null, new Point(800,400), new Point(1632,868),66,"#c00"));
-// c.add(new Line(null, null, new Point(0,950), new Point(800,500),66,"#c00"));
-// c.add(new Line(null, null, new Point(0,450),new Point(1600,450),290,'#fff'));
-// c.add(new Line(null, null, new Point(800,0), new Point(800,900), 290, '#fff'));
-// c.add(new Line(null, null, new Point(0,450),new Point(1600,450),145,'#c00'));
-// c.add(new Line(null, null, new Point(800,0), new Point(800,900), 145, '#c00'));
-// console.log(c);
-// c.render();
-
-
 
 
 
